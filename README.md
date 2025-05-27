@@ -1,33 +1,46 @@
-*Explicação do Código:*
-
-*Namespace:*
+*Namespace*
 
 ```csharp
-namespace jgvelha
+namespace calculadora21
 ```
 
-Cria um espaço de nomes chamado `jgvelha`.
-Serve pra organizar o código e evitar conflito de nomes.
+Agrupa todo o código dentro do projeto chamado `calculadora21`.
 
-*Classe Principal do Formulário:*
+*Classe Form1*
 
 ```csharp
 public partial class Form1 : Form
 ```
-`Form1` é a classe que representa sua janela (seu formulário).
-Herda (`: Form`) de `Form`, que é a classe base do Windows Forms (interface gráfica).
 
-*Variável de Controle do Jogador:*
+Classe principal do formulário, herdando de `Form`, que representa a janela da interface.
+
+*Propriedades*
 
 ```csharp
-bool xis = true;
+public decimal Resultado { get; set; }
+public decimal Valor { get; set; }
+private Operacao OperacaoSelecionada { get; set; }
 ```
-Controla de quem é a vez:
+`Valor`: Armazena o primeiro número digitado.
+`Resultado`: Guarda o resultado do cálculo.
+`OperacaoSelecionada`: Guarda qual operação matemática o usuário escolheu.
 
-  * `true` → Jogador **X**
-  * `false` → Jogador **O**
+*Enum Operacao*
 
-*Construtor da Classe:*
+```csharp
+private enum Operacao
+{
+    Adicao,
+    Subtracao,
+    Multiplicacao,
+    Divisao
+}
+```
+
+Enumeração que define os tipos de operações possíveis: soma, subtração, multiplicação e divisão.
+
+
+*Construtor*
 
 ```csharp
 public Form1()
@@ -36,69 +49,131 @@ public Form1()
 }
 ```
 
-Quando o formulário é criado, o método `InitializeComponent()` monta a interface (botões, labels, etc.).
+Inicializa os componentes da interface quando o formulário é carregado.
 
-*Evento de Carregamento do Formulário:*
+*Botões Numéricos*
+
+Cada botão adiciona seu número ao campo de texto:
 
 ```csharp
-private void Form1_Load(object sender, EventArgs e)
+private void btnX_Click(object sender, EventArgs e)
+{
+    txtResultado.Text += "X";
+}
 ```
 
-Executa quando o formulário abre.
-
-Aqui você:
-Atribui o evento de clique (`Click`) de cada botão para o mesmo método chamado `BClick`.
-Faz um foreach em todos os controles (`this.Controls`), e para cada botão, desativa o `TabStop` (isso impede que o botão pegue foco quando você aperta "Tab").
-
-*Evento de Clique nos Botões:*
+* Exemplo com o número 1:
 
 ```csharp
-private void BClick(object sender, EventArgs e)
-```
-Executa quando qualquer botão do tabuleiro é clicado.
-Faz:
-  1. Coloca um `X` ou `O` no botão, dependendo de quem é a vez (`xis`).
-  2. Desativa o botão (`Enabled = false`) pra não poder clicar de novo nele.
-  3. Chama `VerificarGanhador()` pra ver se alguém venceu.
-  4. Inverte a vez do jogador (`xis = !xis`).
-  5. Atualiza o texto do label (`label1`) informando de quem é a vez.
-
-*Verificar se Alguém Venceu:*
-
-```csharp
-private void VerificarGanhador()
-```
-Checa todas as possibilidades de vitória:
-  * 3 linhas horizontais
-  * 3 colunas verticais
-  * 2 diagonais
-Se encontrar três iguais e não vazios (`String.Empty`), mostra uma mensagem com o vencedor.
-Após vitória, chama `Reiniciar()` para limpar o tabuleiro.
-Se ninguém venceu, chama `VerificarEmpate()` para ver se o jogo empatou.
-
-
-*Verificar Empate:*
-
-```csharp
-private void VerificarEmpate()
-````
-
-Faz um loop em todos os botões.
-Se todos estiverem desativados (`Enabled == false`) e ninguém venceu, mostra a mensagem "Deu empate".
-Chama `Reiniciar()` para reiniciar o jogo.
-
-Reiniciar o Jogo:
-
-```csharp
-private void Reiniciar()
+private void btn1_Click(object sender, EventArgs e)
+{
+    txtResultado.Text += "1";
+}
 ```
 
-Faz um loop em todos os botões.
-Ativa todos os botões (`Enabled = true`).
-Limpa o texto de cada botão (`Text = String.Empty`).
+*Botões de Operações*
 
-*Resumo:*
-1. Clicou no botão → Marca com "X" ou "O".
-2. Verifica se venceu → Se sim, exibe o vencedor.
-3. Se não venceu → Verifica se empatou.
-4. Atualiza o turno do jogador. não
+Exemplo: *Adição*
+
+```csharp
+private void btnAdicao_Click(object sender, EventArgs e)
+{
+    if (!string.IsNullOrEmpty(txtResultado.Text))
+    {
+        OperacaoSelecionada = Operacao.Adicao;
+        Valor = Convert.ToDecimal(txtResultado.Text);
+        txtResultado.Text = "";
+        label1.Text = "+";
+    }
+}
+```
+
+Verifica se o campo `txtResultado` não está vazio.
+Salva o número digitado na variável `Valor`.
+Define que a operação escolhida é adição.
+Limpa o campo de texto para digitar o próximo número.
+Atualiza o `label1` com o símbolo "+".
+
+(Para subtração, multiplicação e divisão o processo é o mesmo, mudando o operador.)
+
+*Botão da Vírgula*
+
+```csharp
+private void btnVirgula_Click(object sender, EventArgs e)
+{
+    if (!txtResultado.Text.Contains(","))
+        txtResultado.Text += ",";
+}
+```
+Adiciona a vírgula decimal se ela ainda não estiver no texto.
+
+*Botão Igual*
+
+```csharp
+private void btnIgual_Click(object sender, EventArgs e)
+{
+    if (!string.IsNullOrEmpty(txtResultado.Text))
+    {
+        decimal segundoValor = Convert.ToDecimal(txtResultado.Text);
+
+        switch (OperacaoSelecionada)
+        {
+            case Operacao.Adicao:
+                Resultado = Valor + segundoValor;
+                break;
+            case Operacao.Subtracao:
+                Resultado = Valor - segundoValor;
+                break;
+            case Operacao.Multiplicacao:
+                Resultado = Valor * segundoValor;
+                break;
+            case Operacao.Divisao:
+                if (segundoValor != 0)
+                    Resultado = Valor / segundoValor;
+                else
+                    MessageBox.Show("Não é possível dividir por zero!");
+                break;
+        }
+
+        txtResultado.Text = Convert.ToString(Resultado);
+        label1.Text = "=";
+    }
+}
+```
+
+Executa a operação escolhida.
+Calcula o resultado de acordo com a operação.
+Se a operação for divisão, verifica se o divisor não é zero.
+Mostra o resultado no campo `txtResultado`.
+
+*Botão Limpar*
+
+```csharp
+private void btnLimpar_Click(object sender, EventArgs e)
+{
+    txtResultado.Text = "";
+    label1.Text = "";
+    Valor = 0;
+    Resultado = 0;
+}
+```
+
+Limpa tudo: campo de texto, label e as variáveis `Valor` e `Resultado`.
+
+*Evento txtResultado\_TextChanged*
+
+```csharp
+private void txtResultado_TextChanged(object sender, EventArgs e)
+{
+}
+```
+
+Está vazio. Esse evento é disparado quando o texto do campo muda, mas não está sendo usado no código.
+
+*Resumo*
+
+* Você digita o primeiro número.
+* Clica na operação (+, -, \*, /).
+* Digita o segundo número.
+* Clica no igual (=) para ver o resultado.
+* Usa o botão limpar (C) para começar um novo cálculo.
