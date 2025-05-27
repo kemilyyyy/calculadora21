@@ -1,4 +1,4 @@
-*Explicação do Código Completo:*
+*Explicação do Código:*
 
 *Namespace:*
 
